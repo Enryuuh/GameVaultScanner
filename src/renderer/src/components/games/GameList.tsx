@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Gamepad2, HardDrive, Download } from 'lucide-react'
 import { useScanStore } from '../../store/scan-store'
 import { formatBytes } from '../../lib/format'
@@ -5,22 +6,21 @@ import GameFilters from './GameFilters'
 import GameCard from './GameCard'
 
 export default function GameList() {
-  const { games, scannedAt } = useScanStore()
-  const filteredGames = useScanStore.getState().filteredGames()
+  const games = useScanStore((s) => s.games)
+  const scannedAt = useScanStore((s) => s.scannedAt)
+  const filters = useScanStore((s) => s.filters)
 
-  // Recompute on filter changes
-  const filtered = useScanStore((s) => {
-    const { games: g, filters } = s
-    return g.filter((game) => {
+  const filtered = useMemo(() => {
+    return games.filter((game) => {
       if (filters.drive && game.drive !== filters.drive) return false
       if (filters.platform && game.platform !== filters.platform) return false
       if (filters.search && !game.name.toLowerCase().includes(filters.search.toLowerCase()))
         return false
       return true
     })
-  })
+  }, [games, filters])
 
-  const totalSize = filtered.reduce((sum, g) => sum + g.sizeBytes, 0)
+  const totalSize = useMemo(() => filtered.reduce((sum, g) => sum + g.sizeBytes, 0), [filtered])
 
   if (!scannedAt) {
     return (

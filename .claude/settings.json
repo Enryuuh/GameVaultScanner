@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Program Files \\(x86\\)/Steam/steamapps/**)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/ProgramData/Epic/EpicGamesLauncher/Data/Manifests/**)",
+      "Read(//c/Program Files \\(x86\\)/Ubisoft/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"console.log\\(JSON.parse\\(require\\(''fs''\\).readFileSync\\(''node_modules/electron/package.json'',''utf8''\\)\\).version\\)\")",
+      "Bash(unset ELECTRON_RUN_AS_NODE)",
+      "Bash(npx electron-vite:*)",
+      "Bash(rm -rf dist)",
+      "Bash(CSC_IDENTITY_AUTO_DISCOVERY=false WIN_CSC_LINK=\"\" npx electron-builder --win portable --config -c.win.sign=false -c.forceCodeSigning=false)",
+      "Bash(rm -rf dist/win-unpacked/resources/app.asar)",
+      "Bash(cp -r out dist/win-unpacked/resources/app)"
+    ]
+  }
+}

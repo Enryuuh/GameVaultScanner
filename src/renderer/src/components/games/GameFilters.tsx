@@ -15,8 +15,10 @@ const PLATFORMS: { value: Platform; label: string }[] = [
 ]
 
 export default function GameFilters() {
-  const { filters, setFilter, disks, games } = useScanStore()
-  const filteredCount = useScanStore.getState().filteredGames().length
+  const filters = useScanStore((s) => s.filters)
+  const setFilter = useScanStore((s) => s.setFilter)
+  const disks = useScanStore((s) => s.disks)
+  const games = useScanStore((s) => s.games)
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -64,7 +66,7 @@ export default function GameFilters() {
       </select>
 
       <span className="text-xs text-text-muted">
-        {filteredCount} de {games.length} juegos
+        {games.length} juegos
       </span>
     </div>
   )

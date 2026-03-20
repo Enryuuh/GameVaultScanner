@@ -20,6 +20,7 @@
   "devDependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
+    "@electron/asar": "^3.4.1",
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
@@ -45,9 +46,9 @@
     ],
     "win": {
       "target": [
-        "nsis"
+        "portable"
       ],
-      "icon": "build/icon.ico"
+      "sign": false
     },
     "nsis": {
       "oneClick": false,
