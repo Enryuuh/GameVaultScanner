@@ -23,13 +23,16 @@ const SIZE_CLASSES = [
   { id: '>100', label: '> 100 GB' }
 ]
 
+const pillActive = 'bg-accent text-bg font-bold border border-accent'
+const pillInactive = 'bg-card text-text-secondary border border-border hover:border-accent/50 hover:text-text'
+
 export default function GameFilters() {
   const { filters, setFilter, disks } = useScanStore()
 
   const uniqueDrives = disks.filter((d) => d.gameCount > 0).map((d) => d.drive)
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Search */}
       <div className="relative">
         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
@@ -38,38 +41,36 @@ export default function GameFilters() {
           placeholder="Search vault..."
           value={filters.search}
           onChange={(e) => setFilter('search', e.target.value || '')}
-          className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-mono text-xs text-text placeholder-text-muted focus:border-accent/50 focus:outline-none transition-colors"
+          className="w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-lg text-mono text-xs text-text placeholder-text-muted focus:border-accent/50 focus:outline-none transition-colors"
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-4">
-        {/* Platform pills */}
-        <div className="flex items-center gap-1">
-          <span className="text-label mr-2">Platform</span>
-          {PLATFORMS.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setFilter('platform', id === 'all' ? null : id)}
-              className={`px-2.5 py-1 rounded text-mono text-[0.6rem] uppercase tracking-wider transition-all ${
-                (id === 'all' && !filters.platform) || filters.platform === id
-                  ? 'bg-accent text-bg font-bold'
-                  : 'bg-card text-text-muted hover:text-text-secondary border border-border'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+      {/* Platform pills */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-mono text-[0.65rem] uppercase tracking-widest text-text-muted mr-1">Platform</span>
+        {PLATFORMS.map(({ id, label }) => (
+          <button
+            key={id}
+            onClick={() => setFilter('platform', id === 'all' ? null : id)}
+            className={`px-3 py-1.5 rounded-md text-mono text-[0.7rem] uppercase tracking-wider transition-all cursor-pointer ${
+              (id === 'all' && !filters.platform) || filters.platform === id
+                ? pillActive
+                : pillInactive
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
-        {/* Drive pills */}
-        <div className="flex items-center gap-1">
-          <span className="text-label mr-2">Drive</span>
+      {/* Drive pills + Size class */}
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-mono text-[0.65rem] uppercase tracking-widest text-text-muted mr-1">Drive</span>
           <button
             onClick={() => setFilter('drive', null)}
-            className={`px-2.5 py-1 rounded text-mono text-[0.6rem] uppercase tracking-wider transition-all ${
-              !filters.drive
-                ? 'bg-accent text-bg font-bold'
-                : 'bg-card text-text-muted hover:text-text-secondary border border-border'
+            className={`px-3 py-1.5 rounded-md text-mono text-[0.7rem] uppercase tracking-wider transition-all cursor-pointer ${
+              !filters.drive ? pillActive : pillInactive
             }`}
           >
             All
@@ -78,10 +79,8 @@ export default function GameFilters() {
             <button
               key={drive}
               onClick={() => setFilter('drive', drive)}
-              className={`px-2.5 py-1 rounded text-mono text-[0.6rem] uppercase tracking-wider transition-all ${
-                filters.drive === drive
-                  ? 'bg-accent text-bg font-bold'
-                  : 'bg-card text-text-muted hover:text-text-secondary border border-border'
+              className={`px-3 py-1.5 rounded-md text-mono text-[0.7rem] uppercase tracking-wider transition-all cursor-pointer ${
+                filters.drive === drive ? pillActive : pillInactive
               }`}
             >
               {drive}
@@ -89,13 +88,12 @@ export default function GameFilters() {
           ))}
         </div>
 
-        {/* Size class dropdown */}
-        <div className="flex items-center gap-1">
-          <span className="text-label mr-2">Size Class</span>
+        <div className="flex items-center gap-2">
+          <span className="text-mono text-[0.65rem] uppercase tracking-widest text-text-muted mr-1">Size Class</span>
           <select
             value={filters.sizeClass || ''}
             onChange={(e) => setFilter('sizeClass', e.target.value || null)}
-            className="px-2.5 py-1 rounded bg-card border border-border text-mono text-[0.6rem] text-text-secondary focus:border-accent/50 focus:outline-none"
+            className="px-3 py-1.5 rounded-md bg-card border border-border text-mono text-[0.7rem] text-text-secondary focus:border-accent/50 focus:outline-none cursor-pointer"
           >
             {SIZE_CLASSES.map(({ id, label }) => (
               <option key={label} value={id || ''}>{label}</option>
