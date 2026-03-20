@@ -24,7 +24,7 @@ function Dashboard() {
             <HardDrive size={56} strokeWidth={1} className="text-accent/30" />
             <Gamepad2 size={24} className="absolute -bottom-1 -right-1 text-cyan/40" />
           </div>
-          <p className="text-lg font-medium text-text-secondary">Bienvenido a ViewerStorage</p>
+          <p className="text-lg font-medium text-text-secondary">Bienvenido a GameVault Scanner</p>
           <p className="text-sm text-center max-w-md">
             Escanea tu PC para descubrir todos los videojuegos instalados,
             organizados por disco duro y plataforma.

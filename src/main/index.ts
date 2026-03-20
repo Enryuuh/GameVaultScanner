@@ -35,7 +35,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('com.viewerstorage.app')
+  app.setAppUserModelId('com.gamevault-scanner.app')
 
   registerIpcHandlers()
   createWindow()

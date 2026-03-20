@@ -1,7 +1,7 @@
 {
-  "name": "viewerstorage",
+  "name": "gamevault-scanner",
   "version": "1.0.0",
-  "description": "Escáner automático de videojuegos instalados en tu PC",
+  "description": "GameVault Scanner - Escáner automático de videojuegos instalados en tu PC",
   "main": "./out/main/index.js",
   "author": "Enryuuh",
   "license": "MIT",
@@ -35,8 +35,8 @@
     "vite": "^6.0.0"
   },
   "build": {
-    "appId": "com.viewerstorage.app",
-    "productName": "ViewerStorage",
+    "appId": "com.gamevault-scanner.app",
+    "productName": "GameVault Scanner",
     "directories": {
       "buildResources": "build"
     },

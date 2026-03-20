@@ -16,7 +16,7 @@ import type { DetectedGame, DiskInfo, ScanResults, ScanProgress } from './types'
 const CACHE_MAX_AGE = 24 * 60 * 60 * 1000 // 24 hours
 
 function getCachePaths(): { dir: string; file: string } {
-  const dir = join(app.getPath('appData'), 'viewerstorage')
+  const dir = join(app.getPath('appData'), 'gamevault-scanner')
   return { dir, file: join(dir, 'cache.json') }
 }
 
