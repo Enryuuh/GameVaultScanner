@@ -1,5 +1,5 @@
-import { ipcMain, BrowserWindow, app } from 'electron'
-import { readFile, writeFile, mkdir, access } from 'fs/promises'
+import { ipcMain, BrowserWindow, app, shell, dialog } from 'electron'
+import { readFile, writeFile, mkdir, access, unlink } from 'fs/promises'
 import { join } from 'path'
 import { scanDisks } from './scanners/disk-scanner'
 import { scanSteam } from './scanners/steam-scanner'
@@ -159,6 +159,50 @@ export function registerIpcHandlers(): void {
     })
 
     return scanResults
+  })
+
+  // Settings
+  ipcMain.handle('settings:load', async () => {
+    try {
+      const { dir } = getCachePaths()
+      const file = join(dir, 'settings.json')
+      await access(file)
+      const content = await readFile(file, 'utf-8')
+      return JSON.parse(content)
+    } catch {
+      return null
+    }
+  })
+
+  ipcMain.handle('settings:save', async (_event, settings) => {
+    try {
+      const { dir } = getCachePaths()
+      await mkdir(dir, { recursive: true })
+      await writeFile(join(dir, 'settings.json'), JSON.stringify(settings, null, 2))
+    } catch {}
+  })
+
+  ipcMain.handle('cache:clear', async () => {
+    try {
+      const { file } = getCachePaths()
+      await unlink(file)
+      return true
+    } catch {
+      return false
+    }
+  })
+
+  ipcMain.handle('path:open', async (_event, path: string) => {
+    shell.showItemInFolder(path)
+  })
+
+  ipcMain.handle('dialog:selectFolder', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Scan Folder'
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
   })
 
   // Window controls

@@ -1,6 +1,6 @@
 {
   "name": "gamevault-scanner",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GameVault Scanner - Escáner automático de videojuegos instalados en tu PC",
   "main": "./out/main/index.js",
   "author": "Enryuuh",

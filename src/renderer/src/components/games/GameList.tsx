@@ -1,70 +1,92 @@
-import { useMemo } from 'react'
-import { Gamepad2, HardDrive, Download } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { Gamepad2, RefreshCw, FolderOpen } from 'lucide-react'
 import { useScanStore } from '../../store/scan-store'
-import { formatBytes } from '../../lib/format'
+import { formatBytesShort } from '../../lib/format'
 import GameFilters from './GameFilters'
-import GameCard from './GameCard'
+import GameTable from './GameTable'
+import Pagination from './Pagination'
+import VaultSizeDonut from './VaultSizeDonut'
+import StorageDistribution from './StorageDistribution'
 
 export default function GameList() {
   const games = useScanStore((s) => s.games)
   const scannedAt = useScanStore((s) => s.scannedAt)
-  const filters = useScanStore((s) => s.filters)
+  const filteredGames = useScanStore((s) => s.filteredGames)
+  const { page, pageSize } = useScanStore((s) => s.pagination)
+  const disks = useScanStore((s) => s.disks)
 
-  const filtered = useMemo(() => {
-    return games.filter((game) => {
-      if (filters.drive && game.drive !== filters.drive) return false
-      if (filters.platform && game.platform !== filters.platform) return false
-      if (filters.search && !game.name.toLowerCase().includes(filters.search.toLowerCase()))
-        return false
-      return true
-    })
-  }, [games, filters])
-
+  const filtered = useMemo(() => filteredGames(), [games, useScanStore((s) => s.filters)])
   const totalSize = useMemo(() => filtered.reduce((sum, g) => sum + g.sizeBytes, 0), [filtered])
+
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / pageSize)
+  const paginatedGames = useMemo(
+    () => filtered.slice((page - 1) * pageSize, page * pageSize),
+    [filtered, page, pageSize]
+  )
 
   if (!scannedAt) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center text-text-muted gap-4">
-        <Gamepad2 size={48} strokeWidth={1} />
-        <p className="text-lg">No hay datos de escaneo</p>
-        <p className="text-sm">Presiona "Escanear" para detectar tus juegos</p>
+        <Gamepad2 size={48} strokeWidth={1} className="text-accent/20" />
+        <p className="text-mono text-sm text-text-secondary">No scan data available</p>
+        <p className="text-xs">Navigate to Scan tab to initiate detection</p>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Stats bar */}
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Gamepad2 size={16} className="text-accent" />
-          <span className="text-sm text-text-secondary">
-            <strong className="text-text">{filtered.length}</strong> juegos
-          </span>
+    <div className="flex flex-col gap-5 h-full animate-fade-in">
+      {/* Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-mono text-2xl font-bold text-text">
+            Games <span className="text-accent">Library</span>
+          </h1>
+          <p className="text-[0.7rem] text-text-muted mt-1">
+            Advanced kinetic scanning protocol complete. {filtered.length} detected entities across {disks.filter(d => d.gameCount > 0).length} local storage volumes.
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <HardDrive size={16} className="text-cyan" />
-          <span className="text-sm text-text-secondary">
-            <strong className="text-cyan">{formatBytes(totalSize)}</strong> total
-          </span>
+          <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-text-muted text-mono text-[0.65rem] uppercase tracking-wider hover:border-accent hover:text-accent transition-all">
+            <RefreshCw size={12} />
+            Refresh Metadata
+          </button>
+          <button
+            onClick={() => {
+              if (filtered[0]) window.api.openPath(filtered[0].path)
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent text-bg text-mono text-[0.65rem] font-bold uppercase tracking-wider hover:bg-accent-light transition-all"
+          >
+            <FolderOpen size={12} />
+            Open Location
+          </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <GameFilters />
-
-      {/* Game list */}
-      <div className="flex-1 overflow-y-auto space-y-2 pr-1">
-        {filtered.map((game, i) => (
-          <GameCard key={`${game.platform}-${game.path}`} game={game} index={i} />
-        ))}
-        {filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-12 text-text-muted gap-2">
-            <Download size={32} strokeWidth={1} />
-            <p className="text-sm">No se encontraron juegos con estos filtros</p>
-          </div>
-        )}
+      {/* Filters + Vault Size */}
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <GameFilters />
+        </div>
+        <VaultSizeDonut totalSize={totalSize} totalCapacity={disks.reduce((s, d) => s + d.totalBytes, 0)} />
       </div>
+
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto">
+        <GameTable games={paginatedGames} startIndex={(page - 1) * pageSize} />
+      </div>
+
+      {/* Pagination */}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        totalItems={filtered.length}
+        pageSize={pageSize}
+      />
+
+      {/* Storage Distribution */}
+      <StorageDistribution />
     </div>
   )
 }
