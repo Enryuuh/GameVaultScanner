@@ -1,12 +1,32 @@
-import type { DetectedGame } from '../../store/scan-store'
+import type { DetectedGame, SortField } from '../../store/scan-store'
+import { useScanStore } from '../../store/scan-store'
 import { formatBytesShort, formatDate } from '../../lib/format'
 import PlatformBadge from './PlatformBadge'
-import { MoreVertical, FolderOpen } from 'lucide-react'
+import { MoreVertical, FolderOpen, Download, ChevronUp, ChevronDown } from 'lucide-react'
 import { useState } from 'react'
 
 interface GameTableProps {
   games: DetectedGame[]
   startIndex: number
+}
+
+function SortIcon({ field }: { field: SortField }) {
+  const { sortField, sortDirection } = useScanStore((s) => s.filters)
+  if (sortField !== field) return <ChevronDown size={10} className="opacity-0 group-hover:opacity-40" />
+  return sortDirection === 'asc' ? <ChevronUp size={10} className="text-accent" /> : <ChevronDown size={10} className="text-accent" />
+}
+
+function SortHeader({ field, label, className = '' }: { field: SortField; label: string; className?: string }) {
+  const toggleSort = useScanStore((s) => s.toggleSort)
+  return (
+    <button
+      onClick={() => toggleSort(field)}
+      className={`group flex items-center gap-1 text-label hover:text-accent transition-colors cursor-pointer ${className}`}
+    >
+      {label}
+      <SortIcon field={field} />
+    </button>
+  )
 }
 
 export default function GameTable({ games, startIndex }: GameTableProps) {
@@ -24,11 +44,11 @@ export default function GameTable({ games, startIndex }: GameTableProps) {
     <div className="w-full">
       {/* Header */}
       <div className="grid grid-cols-[1fr_100px_160px_80px_100px_40px] gap-2 px-3 py-2 border-b border-border">
-        <span className="text-label">Game Title</span>
-        <span className="text-label">Platform</span>
-        <span className="text-label">Drive Location</span>
-        <span className="text-label text-right">Size</span>
-        <span className="text-label text-right">Installed</span>
+        <SortHeader field="name" label="Game Title" />
+        <SortHeader field="platform" label="Platform" />
+        <SortHeader field="drive" label="Drive Location" />
+        <SortHeader field="size" label="Size" className="justify-end" />
+        <SortHeader field="installed" label="Installed" className="justify-end" />
         <span className="text-label text-center">Actions</span>
       </div>
 

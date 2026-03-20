@@ -40,11 +40,16 @@ interface ScanResults {
 
 type View = 'dashboard' | 'games' | 'scan' | 'settings'
 
+type SortField = 'name' | 'platform' | 'size' | 'drive' | 'installed'
+type SortDirection = 'asc' | 'desc'
+
 interface Filters {
   drive: string | null
   platform: Platform | null
   search: string
   sizeClass: string | null
+  sortField: SortField
+  sortDirection: SortDirection
 }
 
 interface ScanLogEntry {
@@ -106,6 +111,7 @@ interface ScanStore {
   addScanPath: (path: string) => void
   removeScanPath: (path: string) => void
   togglePlatform: (platform: Platform) => void
+  toggleSort: (field: SortField) => void
 }
 
 export const useScanStore = create<ScanStore>((set, get) => ({
@@ -115,7 +121,7 @@ export const useScanStore = create<ScanStore>((set, get) => ({
   disks: [],
   games: [],
   scannedAt: null,
-  filters: { drive: null, platform: null, search: '', sizeClass: null },
+  filters: { drive: null, platform: null, search: '', sizeClass: null, sortField: 'size', sortDirection: 'desc' },
   scanLog: [],
   scanElapsed: 0,
   pagination: { page: 1, pageSize: 10 },
@@ -141,7 +147,7 @@ export const useScanStore = create<ScanStore>((set, get) => ({
 
   filteredGames: () => {
     const { games, filters } = get()
-    return games.filter((g) => {
+    const filtered = games.filter((g) => {
       if (filters.drive && g.drive !== filters.drive) return false
       if (filters.platform && g.platform !== filters.platform) return false
       if (filters.search && !g.name.toLowerCase().includes(filters.search.toLowerCase()))
@@ -158,6 +164,19 @@ export const useScanStore = create<ScanStore>((set, get) => ({
       }
       return true
     })
+
+    const dir = filters.sortDirection === 'asc' ? 1 : -1
+    filtered.sort((a, b) => {
+      switch (filters.sortField) {
+        case 'name': return dir * a.name.localeCompare(b.name)
+        case 'platform': return dir * a.platform.localeCompare(b.platform)
+        case 'size': return dir * (a.sizeBytes - b.sizeBytes)
+        case 'drive': return dir * a.drive.localeCompare(b.drive)
+        case 'installed': return dir * ((a.lastPlayed || 0) - (b.lastPlayed || 0))
+        default: return 0
+      }
+    })
+    return filtered
   },
 
   addScanLog: (entry) =>
@@ -190,10 +209,22 @@ export const useScanStore = create<ScanStore>((set, get) => ({
           [platform]: !state.settings.platformToggles[platform]
         }
       }
+    })),
+  toggleSort: (field) =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        sortField: field,
+        sortDirection: state.filters.sortField === field
+          ? (state.filters.sortDirection === 'asc' ? 'desc' : 'asc')
+          : 'desc'
+      },
+      pagination: { ...state.pagination, page: 1 }
     }))
 }))
 
 export type {
   DiskInfo, DetectedGame, ScanProgress, ScanResults,
-  Platform, View, Filters, ScanLogEntry, AppSettings
+  Platform, View, Filters, ScanLogEntry, AppSettings,
+  SortField, SortDirection
 }

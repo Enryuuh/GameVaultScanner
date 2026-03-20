@@ -3,6 +3,7 @@ import StatsRow from './StatsRow'
 import KineticStorageMap from './KineticStorageMap'
 import RecentActivity from './RecentActivity'
 import VaultHealthMetrics from './VaultHealthMetrics'
+import DiskAlerts from './DiskAlerts'
 import { Zap, Trash2, Radar } from 'lucide-react'
 
 export default function DashboardView() {
@@ -10,6 +11,7 @@ export default function DashboardView() {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <DiskAlerts />
       <StatsRow />
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">

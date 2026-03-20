@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
-import { Gamepad2, RefreshCw, FolderOpen } from 'lucide-react'
+import { useMemo } from 'react'
+import { Gamepad2, RefreshCw, FolderOpen, Download } from 'lucide-react'
 import { useScanStore } from '../../store/scan-store'
-import { formatBytesShort } from '../../lib/format'
+import { formatBytesShort, exportGamesCSV, downloadFile } from '../../lib/format'
 import GameFilters from './GameFilters'
 import GameTable from './GameTable'
 import Pagination from './Pagination'
@@ -48,18 +48,28 @@ export default function GameList() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-text-muted text-mono text-[0.65rem] uppercase tracking-wider hover:border-accent hover:text-accent transition-all">
-            <RefreshCw size={12} />
-            Refresh Metadata
+          <button
+            onClick={() => {
+              const csv = exportGamesCSV(filtered)
+              downloadFile(csv, 'gamevault-games.csv', 'text/csv')
+            }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-text-muted text-mono text-[0.65rem] uppercase tracking-wider hover:border-accent hover:text-accent transition-all"
+          >
+            <Download size={12} />
+            Export CSV
           </button>
           <button
             onClick={() => {
-              if (filtered[0]) window.api.openPath(filtered[0].path)
+              const json = JSON.stringify(filtered.map(g => ({
+                name: g.name, platform: g.platform, drive: g.drive,
+                path: g.path, sizeGB: +(g.sizeBytes / (1024 ** 3)).toFixed(2)
+              })), null, 2)
+              downloadFile(json, 'gamevault-games.json', 'application/json')
             }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent text-bg text-mono text-[0.65rem] font-bold uppercase tracking-wider hover:bg-accent-light transition-all"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-text-muted text-mono text-[0.65rem] uppercase tracking-wider hover:border-accent hover:text-accent transition-all"
           >
-            <FolderOpen size={12} />
-            Open Location
+            <Download size={12} />
+            Export JSON
           </button>
         </div>
       </div>

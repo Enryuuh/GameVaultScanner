@@ -50,3 +50,21 @@ export function formatRelativeTime(ts: number): string {
   if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`
   return `${Math.floor(diff / 86400)} days ago`
 }
+
+export function exportGamesCSV(games: { name: string; platform: string; drive: string; path: string; sizeBytes: number }[]): string {
+  const header = 'Name,Platform,Drive,Path,Size (GB)'
+  const rows = games.map((g) =>
+    `"${g.name.replace(/"/g, '""')}","${g.platform}","${g.drive}","${g.path.replace(/"/g, '""')}",${(g.sizeBytes / (1024 ** 3)).toFixed(2)}`
+  )
+  return [header, ...rows].join('\n')
+}
+
+export function downloadFile(content: string, filename: string, type: string): void {
+  const blob = new Blob([content], { type })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  a.click()
+  URL.revokeObjectURL(url)
+}
